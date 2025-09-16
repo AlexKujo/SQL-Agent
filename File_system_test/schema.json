@@ -1,0 +1,685 @@
+[
+    {
+        "schema": "public",
+        "name": "customers",
+        "rls_enabled": true,
+        "rows": 99441,
+        "columns": [
+            {
+                "name": "customer_id",
+                "data_type": "text",
+                "format": "text",
+                "options": [
+                    "updatable"
+                ],
+                "comment": "key to the orders dataset. Each order has a unique customer_id"
+            },
+            {
+                "name": "customer_unique_id",
+                "data_type": "text",
+                "format": "text",
+                "options": [
+                    "updatable"
+                ],
+                "comment": "unique identifier of a customer"
+            },
+            {
+                "name": "customer_zip_code_prefix",
+                "data_type": "bigint",
+                "format": "int8",
+                "options": [
+                    "nullable",
+                    "updatable"
+                ],
+                "comment": "first five digits of customer zip code"
+            },
+            {
+                "name": "customer_city",
+                "data_type": "text",
+                "format": "text",
+                "options": [
+                    "nullable",
+                    "updatable"
+                ]
+            },
+            {
+                "name": "customer_state",
+                "data_type": "text",
+                "format": "text",
+                "options": [
+                    "nullable",
+                    "updatable"
+                ]
+            }
+        ],
+        "primary_keys": [
+            "customer_id"
+        ],
+        "comment": "This dataset has information about the customer and its location. Use it to identify unique customers in the orders dataset and to find the orders delivery location.  At our system each order is assigned to a unique customer_id. This means that the same customer will get different ids for different orders. The purpose of having a customer_unique_id on the dataset is to allow you to identify customers that made repurchases at the store. Otherwise you would find that each order had a different customer associated with.",
+        "foreign_key_constraints": [
+            {
+                "name": "orders_customer_id_fkey",
+                "source": "public.orders.customer_id",
+                "target": "public.customers.customer_id"
+            }
+        ]
+    },
+    {
+        "schema": "public",
+        "name": "geolocation",
+        "rls_enabled": true,
+        "rows": 1000163,
+        "columns": [
+            {
+                "name": "geolocation_zip_code_prefix",
+                "data_type": "bigint",
+                "format": "int8",
+                "options": [
+                    "updatable"
+                ],
+                "comment": "first 5 digits of zip code"
+            },
+            {
+                "name": "geolocation_lat",
+                "data_type": "double precision",
+                "format": "float8",
+                "options": [
+                    "nullable",
+                    "updatable"
+                ],
+                "comment": "latitude"
+            },
+            {
+                "name": "geolocation_lng",
+                "data_type": "double precision",
+                "format": "float8",
+                "options": [
+                    "nullable",
+                    "updatable"
+                ],
+                "comment": "longitude"
+            },
+            {
+                "name": "geolocation_city",
+                "data_type": "text",
+                "format": "text",
+                "options": [
+                    "nullable",
+                    "updatable"
+                ]
+            },
+            {
+                "name": "geolocation_state",
+                "data_type": "text",
+                "format": "text",
+                "options": [
+                    "nullable",
+                    "updatable"
+                ]
+            },
+            {
+                "name": "id",
+                "data_type": "bigint",
+                "format": "int8",
+                "options": [
+                    "identity",
+                    "updatable"
+                ],
+                "identity_generation": "BY DEFAULT"
+            }
+        ],
+        "primary_keys": [],
+        "comment": "This dataset has information Brazilian zip codes and its lat/lng coordinates. Use it to plot maps and find distances between sellers and customers."
+    },
+    {
+        "schema": "public",
+        "name": "order_items",
+        "rls_enabled": true,
+        "rows": 111920,
+        "columns": [
+            {
+                "name": "order_id",
+                "data_type": "text",
+                "format": "text",
+                "options": [
+                    "updatable"
+                ],
+                "comment": "order unique identifier"
+            },
+            {
+                "name": "order_item_id",
+                "data_type": "bigint",
+                "format": "int8",
+                "options": [
+                    "updatable"
+                ],
+                "comment": "sequential number identifying number of items included in the same order."
+            },
+            {
+                "name": "product_id",
+                "data_type": "text",
+                "format": "text",
+                "options": [
+                    "updatable"
+                ],
+                "comment": "product unique identifier"
+            },
+            {
+                "name": "seller_id",
+                "data_type": "text",
+                "format": "text",
+                "options": [
+                    "updatable"
+                ],
+                "comment": "seller unique identifier"
+            },
+            {
+                "name": "shipping_limit_date",
+                "data_type": "timestamp with time zone",
+                "format": "timestamptz",
+                "options": [
+                    "nullable",
+                    "updatable"
+                ],
+                "comment": "Shows the seller shipping limit date for handling the order over to the logistic partner."
+            },
+            {
+                "name": "price",
+                "data_type": "double precision",
+                "format": "float8",
+                "options": [
+                    "nullable",
+                    "updatable"
+                ]
+            },
+            {
+                "name": "freight_value",
+                "data_type": "double precision",
+                "format": "float8",
+                "options": [
+                    "nullable",
+                    "updatable"
+                ],
+                "comment": "item freight value item (if an order has more than one item the freight value is splitted between items)"
+            }
+        ],
+        "primary_keys": [
+            "order_id",
+            "order_item_id",
+            "product_id",
+            "seller_id"
+        ],
+        "comment": "Includes data about the items purchased within each order. Example: If The order_id has 3 items (same product). Each item has the freight calculated accordingly to its measures and weight. To get the total freight value for each order you just have to sum.",
+        "foreign_key_constraints": [
+            {
+                "name": "order_items_seller_id_fkey",
+                "source": "public.order_items.seller_id",
+                "target": "public.sellers.seller_id"
+            },
+            {
+                "name": "order_items_order_id_fkey",
+                "source": "public.order_items.order_id",
+                "target": "public.orders.order_id"
+            },
+            {
+                "name": "order_items_product_id_fkey",
+                "source": "public.order_items.product_id",
+                "target": "public.products.product_id"
+            }
+        ]
+    },
+    {
+        "schema": "public",
+        "name": "order_payments",
+        "rls_enabled": true,
+        "rows": 103886,
+        "columns": [
+            {
+                "name": "order_id",
+                "data_type": "text",
+                "format": "text",
+                "options": [
+                    "updatable"
+                ],
+                "comment": "unique identifier of an order."
+            },
+            {
+                "name": "payment_sequential",
+                "data_type": "bigint",
+                "format": "int8",
+                "options": [
+                    "updatable"
+                ],
+                "comment": "a customer may pay an order with more than one payment method. If he does so, a sequence will be created to"
+            },
+            {
+                "name": "payment_type",
+                "data_type": "text",
+                "format": "text",
+                "options": [
+                    "nullable",
+                    "updatable"
+                ],
+                "comment": "method of payment chosen by the customer."
+            },
+            {
+                "name": "payment_installments",
+                "data_type": "bigint",
+                "format": "int8",
+                "options": [
+                    "nullable",
+                    "updatable"
+                ],
+                "comment": "number of installments chosen by the customer."
+            },
+            {
+                "name": "payment_value",
+                "data_type": "double precision",
+                "format": "float8",
+                "options": [
+                    "nullable",
+                    "updatable"
+                ],
+                "comment": "transaction value."
+            }
+        ],
+        "primary_keys": [
+            "order_id",
+            "payment_sequential"
+        ],
+        "comment": "includes data about the orders payment options",
+        "foreign_key_constraints": [
+            {
+                "name": "order_payments_order_id_fkey",
+                "source": "public.order_payments.order_id",
+                "target": "public.orders.order_id"
+            }
+        ]
+    },
+    {
+        "schema": "public",
+        "name": "order_reviews",
+        "rls_enabled": true,
+        "rows": 99029,
+        "columns": [
+            {
+                "name": "review_id",
+                "data_type": "text",
+                "format": "text",
+                "options": [
+                    "updatable"
+                ]
+            },
+            {
+                "name": "order_id",
+                "data_type": "text",
+                "format": "text",
+                "options": [
+                    "updatable"
+                ]
+            },
+            {
+                "name": "review_score",
+                "data_type": "bigint",
+                "format": "int8",
+                "options": [
+                    "nullable",
+                    "updatable"
+                ]
+            },
+            {
+                "name": "review_comment_title",
+                "data_type": "text",
+                "format": "text",
+                "options": [
+                    "nullable",
+                    "updatable"
+                ]
+            },
+            {
+                "name": "review_comment_message",
+                "data_type": "text",
+                "format": "text",
+                "options": [
+                    "nullable",
+                    "updatable"
+                ]
+            },
+            {
+                "name": "review_creation_date",
+                "data_type": "timestamp with time zone",
+                "format": "timestamptz",
+                "options": [
+                    "nullable",
+                    "updatable"
+                ]
+            },
+            {
+                "name": "review_answer_timestamp",
+                "data_type": "timestamp with time zone",
+                "format": "timestamptz",
+                "options": [
+                    "nullable",
+                    "updatable"
+                ]
+            }
+        ],
+        "primary_keys": [
+            "review_id",
+            "order_id"
+        ],
+        "comment": "includes data about the reviews made by the customers.  After a customer purchases the product from Olist Store a seller gets notified to fulfill that order. Once the customer receives the product, or the estimated delivery date is due, the customer gets a satisfaction survey by email where he can give a note for the purchase experience and write down some comments.",
+        "foreign_key_constraints": [
+            {
+                "name": "order_reviews_order_id_fkey",
+                "source": "public.order_reviews.order_id",
+                "target": "public.orders.order_id"
+            }
+        ]
+    },
+    {
+        "schema": "public",
+        "name": "orders",
+        "rls_enabled": true,
+        "rows": 99441,
+        "columns": [
+            {
+                "name": "order_id",
+                "data_type": "text",
+                "format": "text",
+                "options": [
+                    "updatable"
+                ],
+                "comment": "unique identifier of the order."
+            },
+            {
+                "name": "customer_id",
+                "data_type": "text",
+                "format": "text",
+                "options": [
+                    "nullable",
+                    "updatable"
+                ],
+                "comment": "key to the customer dataset. Each order has a unique customer_id."
+            },
+            {
+                "name": "order_status",
+                "data_type": "text",
+                "format": "text",
+                "options": [
+                    "nullable",
+                    "updatable"
+                ],
+                "comment": "Reference to the order status (delivered, shipped, etc)."
+            },
+            {
+                "name": "order_purchase_timestamp",
+                "data_type": "timestamp with time zone",
+                "format": "timestamptz",
+                "options": [
+                    "nullable",
+                    "updatable"
+                ],
+                "comment": "Shows the purchase timestamp."
+            },
+            {
+                "name": "order_approved_at",
+                "data_type": "text",
+                "format": "text",
+                "options": [
+                    "nullable",
+                    "updatable"
+                ],
+                "comment": "Shows the payment approval timestamp."
+            },
+            {
+                "name": "order_delivered_carrier_date",
+                "data_type": "text",
+                "format": "text",
+                "options": [
+                    "nullable",
+                    "updatable"
+                ],
+                "comment": "Shows the order posting timestamp. When it was handled to the logistic partner."
+            },
+            {
+                "name": "order_delivered_customer_date",
+                "data_type": "text",
+                "format": "text",
+                "options": [
+                    "nullable",
+                    "updatable"
+                ],
+                "comment": "Shows the actual order delivery date to the customer."
+            },
+            {
+                "name": "order_estimated_delivery_date",
+                "data_type": "timestamp with time zone",
+                "format": "timestamptz",
+                "options": [
+                    "nullable",
+                    "updatable"
+                ],
+                "comment": "Shows the estimated delivery date that was informed to customer at the purchase moment."
+            }
+        ],
+        "primary_keys": [
+            "order_id"
+        ],
+        "comment": "This is the core dataset. From each order you might find all other information.",
+        "foreign_key_constraints": [
+            {
+                "name": "order_reviews_order_id_fkey",
+                "source": "public.order_reviews.order_id",
+                "target": "public.orders.order_id"
+            },
+            {
+                "name": "order_items_order_id_fkey",
+                "source": "public.order_items.order_id",
+                "target": "public.orders.order_id"
+            },
+            {
+                "name": "order_payments_order_id_fkey",
+                "source": "public.order_payments.order_id",
+                "target": "public.orders.order_id"
+            },
+            {
+                "name": "orders_customer_id_fkey",
+                "source": "public.orders.customer_id",
+                "target": "public.customers.customer_id"
+            }
+        ]
+    },
+    {
+        "schema": "public",
+        "name": "products",
+        "rls_enabled": true,
+        "rows": 32951,
+        "columns": [
+            {
+                "name": "product_id",
+                "data_type": "text",
+                "format": "text",
+                "options": [
+                    "updatable"
+                ],
+                "comment": "unique product identifier"
+            },
+            {
+                "name": "product_category_name",
+                "data_type": "text",
+                "format": "text",
+                "options": [
+                    "nullable",
+                    "updatable"
+                ],
+                "comment": "root category of product, in Portuguese."
+            },
+            {
+                "name": "product_name_lenght",
+                "data_type": "bigint",
+                "format": "int8",
+                "options": [
+                    "nullable",
+                    "updatable"
+                ],
+                "comment": "number of characters extracted from the product name."
+            },
+            {
+                "name": "product_description_lenght",
+                "data_type": "bigint",
+                "format": "int8",
+                "options": [
+                    "nullable",
+                    "updatable"
+                ],
+                "comment": "number of characters extracted from the product description."
+            },
+            {
+                "name": "product_photos_qty",
+                "data_type": "bigint",
+                "format": "int8",
+                "options": [
+                    "nullable",
+                    "updatable"
+                ],
+                "comment": "number of product published photos"
+            },
+            {
+                "name": "product_weight_g",
+                "data_type": "bigint",
+                "format": "int8",
+                "options": [
+                    "nullable",
+                    "updatable"
+                ],
+                "comment": "product weight measured in grams."
+            },
+            {
+                "name": "product_length_cm",
+                "data_type": "bigint",
+                "format": "int8",
+                "options": [
+                    "nullable",
+                    "updatable"
+                ],
+                "comment": "product length measured in centimeters."
+            },
+            {
+                "name": "product_height_cm",
+                "data_type": "bigint",
+                "format": "int8",
+                "options": [
+                    "nullable",
+                    "updatable"
+                ],
+                "comment": "product height measured in centimeters."
+            },
+            {
+                "name": "product_width_cm",
+                "data_type": "bigint",
+                "format": "int8",
+                "options": [
+                    "nullable",
+                    "updatable"
+                ],
+                "comment": "product width measured in centimeters."
+            }
+        ],
+        "primary_keys": [
+            "product_id"
+        ],
+        "comment": "includes data about the products sold",
+        "foreign_key_constraints": [
+            {
+                "name": "order_items_product_id_fkey",
+                "source": "public.order_items.product_id",
+                "target": "public.products.product_id"
+            }
+        ]
+    },
+    {
+        "schema": "public",
+        "name": "sellers",
+        "rls_enabled": true,
+        "rows": 3095,
+        "columns": [
+            {
+                "name": "seller_id",
+                "data_type": "text",
+                "format": "text",
+                "options": [
+                    "updatable"
+                ],
+                "comment": "seller unique identifier"
+            },
+            {
+                "name": "seller_zip_code_prefix",
+                "data_type": "bigint",
+                "format": "int8",
+                "options": [
+                    "nullable",
+                    "updatable"
+                ],
+                "comment": "first 5 digits of seller zip code"
+            },
+            {
+                "name": "seller_city",
+                "data_type": "text",
+                "format": "text",
+                "options": [
+                    "nullable",
+                    "updatable"
+                ]
+            },
+            {
+                "name": "seller_state",
+                "data_type": "text",
+                "format": "text",
+                "options": [
+                    "nullable",
+                    "updatable"
+                ]
+            }
+        ],
+        "primary_keys": [
+            "seller_id"
+        ],
+        "comment": "includes data about the sellers that fulfilled orders made at Olist. Use it to find the seller location and to identify which seller fulfilled each product.",
+        "foreign_key_constraints": [
+            {
+                "name": "order_items_seller_id_fkey",
+                "source": "public.order_items.seller_id",
+                "target": "public.sellers.seller_id"
+            }
+        ]
+    },
+    {
+        "schema": "public",
+        "name": "category_name_translation",
+        "rls_enabled": true,
+        "rows": 71,
+        "columns": [
+            {
+                "name": "product_category_name",
+                "data_type": "text",
+                "format": "text",
+                "options": [
+                    "nullable",
+                    "updatable"
+                ]
+            },
+            {
+                "name": "product_category_name_english",
+                "data_type": "text",
+                "format": "text",
+                "options": [
+                    "nullable",
+                    "updatable"
+                ]
+            }
+        ],
+        "primary_keys": [],
+        "comment": "Translates the product_category_name to english."
+    }
+]

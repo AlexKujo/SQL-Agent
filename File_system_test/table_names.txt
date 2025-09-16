@@ -1,0 +1,10 @@
+В базе данных есть следующие таблицы:
+1. customers
+2. geolocation
+3. order_items
+4. order_payments
+5. order_reviews
+6. orders
+7. products
+8. sellers
+9. category_name_translation
