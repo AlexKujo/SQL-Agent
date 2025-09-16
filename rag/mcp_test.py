@@ -51,14 +51,14 @@ mcp_config = {
         "args": ["-y", "@modelcontextprotocol/server-filesystem", "./File_system_test"],
         "transport": "stdio",
     },
-    # "exa": {
-    #     "command": "npx",
-    #     "args": ["-y", "exa-mcp-server", "--tools=web_search"],
-    #     "env": {
-    #         "EXA_API_KEY": os.getenv("EXA_SEARCH_MCP"),
-    #     },
-    #     "transport": "stdio",
-    # },
+    "exa": {
+        "command": "npx",
+        "args": ["-y", "exa-mcp-server", "--tools=web_search"],
+        "env": {
+            "EXA_API_KEY": os.getenv("EXA_SEARCH_MCP"),
+        },
+        "transport": "stdio",
+    },
 }
 
 
