@@ -25,7 +25,6 @@ class SchemaDocumentBuilder:
 
     def create_documents(self, schema_data: List[Dict]) -> List[Document]:
         # region docstring
-
         """
         Create Document objects from schema data.
 
@@ -47,10 +46,10 @@ class SchemaDocumentBuilder:
         # endregion
         documents = []
 
-        for table_info in schema_data:
+        for chunk_info in schema_data:
 
-            content = self._build_document_content(table_info)
-            metadata = self._build_metadata(table_info)
+            content = self._build_document_content(chunk_info)
+            metadata = self._build_metadata(chunk_info)
 
             document = Document(page_content=content, metadata=metadata)
 
@@ -58,9 +57,8 @@ class SchemaDocumentBuilder:
 
         return documents
 
-    def _build_document_content(self, table_info: Dict) -> str:
+    def _build_document_content(self, chunk_info: Dict) -> str:
         # region docstring
-
         """
         Build the main content for the document from table information.
 
@@ -71,17 +69,15 @@ class SchemaDocumentBuilder:
             str: String content for the document
         """
         # endregion
-        return table_info["table_schema"].strip()
+        return chunk_info["table_schema"].strip()
 
-    def _build_metadata(self, table_info: Dict) -> Dict:
+    def _build_metadata(self, chunk_info: Dict) -> Dict:
         # region docstring
-
         """
         Build metadata dictionary for the document.
 
-
         Args:
-            table_info (Dict): Dictionary containing table information
+            chunk_info (Dict): Dictionary containing chunk information
 
         Returns:
             Dict: Metadata dictionary for search and filtering
@@ -89,43 +85,16 @@ class SchemaDocumentBuilder:
         # endregion
 
         metadata = {
-            "table_name": table_info["table_name"],
-            "columns": table_info["columns_names"],
+            "table_name": chunk_info["table_name"],
+            "columns": chunk_info["columns_names"],
             "source": "database_schema",
         }
 
+        # Add chunk-specific metadata if present (for chunked data)
+        if "chunk_type" in chunk_info:
+            metadata["chunk_type"] = chunk_info["chunk_type"]
+
+        if "chunk_order" in chunk_info:
+            metadata["chunk_order"] = chunk_info["chunk_order"]
+
         return metadata
-
-
-if __name__ == "__main__":
-    # Example schema data (as returned by DatabaseSchemaExtractor)
-    sample_schema_data = [
-        {
-            "table_name": "customers",
-            "columns_names": ["customer_id", "customer_unique_id", "customer_city"],
-            "table_schema": """
-        TABLE DESCRIPTION: This dataset has information about customers and location.
-        
-CREATE TABLE customers (
-    customer_id TEXT NOT NULL,
-    customer_unique_id TEXT NOT NULL,
-    customer_city TEXT,
-    CONSTRAINT customers_pkey PRIMARY KEY (customer_id)
-)
-
-/*
-Column Comments: {'customer_id': 'key to the orders dataset'}
-*/
-        """,
-        }
-    ]
-
-    # Create document builder
-    builder = SchemaDocumentBuilder()
-
-    # Build documents
-    documents = builder.create_documents(sample_schema_data)
-
-    # Print results
-    for i, doc in enumerate(documents):
-        print(doc.page_content[:1000])
